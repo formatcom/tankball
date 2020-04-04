@@ -1,5 +1,4 @@
 #include <core/game.h>
-#include "controller.h"
 #include "ground.h"
 #include "tank.h"
 
@@ -7,8 +6,6 @@
 int main(void)
 {
 	Game::engine.init(1280, 720, 60);
-
-	configController();
 
 	Ground *ground = new Ground(Game::engine.world);
 

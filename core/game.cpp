@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 #include <Box2D/Box2D.h>
+#include "hack_SDL.h"
 #include "game.h"
 
 Game Game::engine;
@@ -11,9 +12,7 @@ int Game::initSDL()
 	this->window   = NULL;
 	this->renderer = NULL;
 
-	if (SDL_Init(
-			SDL_INIT_TIMER | SDL_INIT_VIDEO |
-			SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC ) != 0)
+	if (SDL_Init( SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER ) != 0)
 	{
 		return 1;
 	}
@@ -30,50 +29,6 @@ int Game::initSDL()
 void Game::initBox2D()
 {
 	this->world = new b2World(b2Vec2(0.0, GRAVITY));
-}
-
-void Game::openGameController(int device)
-{
-	printf("DEVICE %d\n", device);
-	/*
-	int maxJoysticks = SDL_NumJoysticks();
-	int index = 0;
-
-	for (int i=0; i < maxJoysticks; ++i)
-	{
-		printf("JOY %d\n", i);
-		if (!SDL_IsGameController(i)) continue;
-		if (index >= MAX_CONTROLLERS) break;
-		printf("CONTROLLER %d\n", i);
-
-		this->controller[index] = SDL_GameControllerOpen(i);
-		this->haptic[index]     = SDL_HapticOpen(i);
-
-		if (this->haptic[index] && SDL_HapticRumbleInit(this->haptic[index]) != 0)
-		{
-			SDL_HapticClose(this->haptic[index]);
-			this->haptic[index] = 0;
-		}
-
-		index++;
-	}
-	*/
-}
-
-void Game::closeGameController(int device)
-{
-	for (int i=0; i < MAX_CONTROLLERS; ++i)
-	{
-		if (this->controller[i])
-		{
-			if (this->haptic[i])
-			{
-				SDL_HapticClose(this->haptic[i]);
-			}
-
-			SDL_GameControllerClose(this->controller[i]);
-		}
-	}
 }
 
 int Game::init(uint16_t width, uint16_t height, uint8_t framerate)
@@ -127,46 +82,77 @@ void Game::loop()
 				{
 					this->state = STATE_END;
 				}
-				printf("KEY %d\n", event.key.keysym.sym);
 			}
 
 			if (event.type == SDL_JOYDEVICEADDED)
 			{
-				printf("JOY DEVICE ADD\n");
-				SDL_JoystickOpen(0);
-				SDL_GameController *controller = SDL_GameControllerOpen(0);
-				if (!controller)
+
+				SDL_Log("INDEX %d\n", event.jdevice.which);
+
+				if (this->indexController < MAX_CONTROLLERS)
 				{
-					fprintf(stderr, "Could not open gamecontroller 0: %s\n", SDL_GetError());
+					SDL_Log("JOY %d DEVICE ADD\n", this->indexController);
+
+					if (!SDL_IsGameController(event.jdevice.which))
+					{
+						SDL_Log("  Joystick is not supported by the game controller interface!\n\n");
+					}
+					else
+					{
+						this->controller[this->indexController] = SDL_GameControllerOpen(event.jdevice.which);
+
+						if (this->controller[this->indexController])
+						{
+							char *guid = new char[64];
+
+							SDL_JoystickGetGUIDString(
+									SDL_JoystickGetDeviceGUID(event.jdevice.which),
+									guid, 64);
+
+							SDL_Log("  Opened Joystick %d\n",
+									SDL_GameControllerGetJoystick(this->controller[this->indexController])->ref_count);
+							SDL_Log("  Name:              %s\n", SDL_JoystickNameForIndex(event.jdevice.which));
+							SDL_Log("  GUID               %s\n", guid);
+							SDL_Log("  Number of Axes:    %d\n", SDL_JoystickNumAxes(
+										SDL_GameControllerGetJoystick(this->controller[this->indexController])));
+							SDL_Log("  Number of Buttons: %d\n", SDL_JoystickNumButtons(
+										SDL_GameControllerGetJoystick(this->controller[this->indexController])));
+							SDL_Log("  Number of Balls:   %d\n", SDL_JoystickNumBalls(
+										SDL_GameControllerGetJoystick(this->controller[this->indexController])));
+
+							this->indexController++;
+						}
+					}
 				}
 			}
 
 			if (event.type == SDL_JOYDEVICEREMOVED)
 			{
-				printf("JOY DEVICE REMOVED\n");
-				SDL_GameControllerClose(0);
-				SDL_JoystickClose(0);
-			}
+				SDL_Log("JOY DEVICE REMOVED\n");
 
-			if (event.type == SDL_CONTROLLERDEVICEREMAPPED)
-			{
-				printf("CONTROLLER DEVICE REMAPPED\n");
+				SDL_GameController *controller = SDL_GameControllerFromInstanceID(event.jdevice.which);
+
+				SDL_Log("  Name:              %s\n", SDL_GameControllerName(controller));
+				SDL_GameControllerClose(controller);
+
+				this->indexController--;
 			}
 
 			if (event.type == SDL_CONTROLLERAXISMOTION)
 			{
-				printf("CONTROLLER AXIS EVENT\n");
+				SDL_Log("CONTROLLER AXIS EVENT\n");
 			}
 
 			if (event.type == SDL_CONTROLLERBUTTONDOWN)
 			{
-				printf("CONTROLLER BUTTON DOWN EVENT\n");
+				SDL_Log("CONTROLLER BUTTON DOWN EVENT\n");
 			}
 
-			if (event.type == SDL_JOYBUTTONDOWN)
+			if (event.type == SDL_CONTROLLERBUTTONUP)
 			{
-				printf("JOY BUTTON DOWN EVENT\n");
+				SDL_Log("CONTROLLER BUTTON UP EVENT\n");
 			}
+
 
 		}
 

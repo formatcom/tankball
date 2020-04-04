@@ -23,13 +23,13 @@ import (
 // bdaddr_t BDADDR(inquiry_info * dev) { return dev->bdaddr; }
 import "C"
 
-const STATE_BTN_ACTION = 1<<0
-const STATE_BTN_RIGHT  = 1<<1
-const STATE_BTN_LEFT   = 1<<2
+const STATE_BTN_ACTION = (1<<0)
+const STATE_BTN_RIGHT  = (1<<1)
+const STATE_BTN_LEFT   = (1<<2)
 
-const STATE_LED_RED    = 1<<0
-const STATE_LED_GREEN  = 1<<1
-const STATE_LED_BLUE   = 1<<2
+const STATE_LED_RED    = (1<<0)
+const STATE_LED_GREEN  = (1<<1)
+const STATE_LED_BLUE   = (1<<2)
 const STATE_LED_MASK   = (1<<0) | (1<<1) | (1<<2)
 
 

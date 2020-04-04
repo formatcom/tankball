@@ -6,7 +6,6 @@ CFLAGS= -Wall -I. -lBox2D -lSDL2_gfx -lSDL2
 
 SRCS= core/entity.cpp \
       core/game.cpp   \
-      controller.cpp  \
       ground.cpp      \
       tank.cpp        \
       main.cpp
