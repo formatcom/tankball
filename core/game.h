@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include "entity.h"
 
 #define PTM              6.0
@@ -34,7 +35,9 @@ public:
 	int init(unsigned short width, unsigned short height, uint8_t framerate);
 	void loop();
 	void destroy(uint8_t withEntity);
-	void destroy() { this->destroy(0); } ;
+	void destroy() { this->destroy(0); };
+	void setFont( TTF_Font * f) { this->font = f; };
+	TTF_Font * getFont() { return this->font; };
 
 	uint8_t   getState()    { return this->state;   };
 	uint16_t  getWidth()    { return this->width;   };
@@ -78,6 +81,7 @@ private:
 	uint8_t   framerate;
 	uint32_t startTicks;
 	uint32_t deltaTicks;
+	TTF_Font *font;
 
 	SDL_Window    *window;
 	SDL_Renderer  *renderer;

@@ -2,7 +2,6 @@
 #define _ENTITY_LOGGER_H_
 
 #include <vector>
-#include <SDL2/SDL_ttf.h>
 #include <core/entity.h>
 
 #include "controller.h"
@@ -24,7 +23,6 @@ private:
 
 	Controller *controller;
 
-	TTF_Font *font;
 	int   line;
 	int   size;
 };

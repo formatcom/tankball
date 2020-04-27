@@ -6,9 +6,10 @@
 #include "tank.h"
 
 
-Tank::Tank(b2World * world) : Entity(world)
+Tank::Tank(Controller *controller, b2World * world) : Entity(world)
 {
 
+	this->controller = controller;
 	this->color.rgba = 0xFFFFFFFF;
 	this->radius     = 16;
 
@@ -30,6 +31,43 @@ Tank::Tank(b2World * world) : Entity(world)
 
 	this->body->CreateFixture(this->fixture);
 
+}
+
+void Tank::update()
+{
+	uint8_t buttons = Game::engine.getButtons(this->slot);
+
+	uint8_t turn = this->controller->getPlayer();
+	if (turn == this->slot && this->controller->state & TANKBALL_STATE_RUNNING)
+	{
+
+		// remove notify
+		if (buttons && this->controller->state & TANKBALL_STATE_INFO)
+		{
+			this->controller->state |= TANKBALL_STATE_RECV;
+		}
+
+		if (this->controller->state & TANKBALL_STATE_SET_MOVE)
+		{
+			if (buttons & BUTTON_RIGHT)
+			{
+				this->body->ApplyLinearImpulse(b2Vec2( 15, 0), this->body->GetWorldCenter(), true);
+			}
+
+			if (buttons & BUTTON_LEFT)
+			{
+				this->body->ApplyLinearImpulse(b2Vec2(-15, 0), this->body->GetWorldCenter(), true);
+			}
+
+			// release BUTTON_A
+			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)
+			{
+				this->controller->next();
+			}
+		}
+	}
+
+	this->lastButtons = buttons;
 }
 
 void Tank::render(SDL_Renderer *renderer)

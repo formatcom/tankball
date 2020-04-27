@@ -13,7 +13,6 @@ Logger::Logger(Controller *controller) : Entity(nullptr)
 	this->controller = controller;
 	this->line =  0;
 	this->size = 16;
-	this->font = TTF_OpenFont("joystixmonospace.ttf", this->size);
 	this->color.rgba = 0xFFFFFFFF;
 }
 
@@ -21,7 +20,7 @@ void Logger::print(SDL_Renderer *renderer, const char *text, int x, int y)
 {
 	SDL_Rect position;
 	SDL_Surface* surface = TTF_RenderText_Solid(
-								this->font,
+								Game::engine.getFont(),
 								text,
 								*(SDL_Color*)(&this->color));
 
@@ -36,7 +35,6 @@ void Logger::print(SDL_Renderer *renderer, const char *text, int x, int y)
 
 	SDL_FreeSurface(surface);
 	SDL_DestroyTexture(texture);
-
 }
 
 void Logger::println(SDL_Renderer *renderer, const char *text)
@@ -62,15 +60,6 @@ void Logger::render(SDL_Renderer *renderer)
 				SDL_GameControllerName(joy),
 				Game::engine.getButtons(slot));
 		this->println(renderer, buf);
-	}
-
-	// only test
-	if (this->controller->state & TANKBALL_STATE_RUNNING)
-	{
-		if (Game::engine.getButtons(0) & BUTTON_A)
-		{
-			this->controller->next();
-		}
 	}
 
 	this->println(renderer, " ");

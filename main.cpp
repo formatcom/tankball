@@ -1,3 +1,4 @@
+#include <SDL2/SDL_ttf.h>
 #include <core/game.h>
 #include "controller.h"
 #include "ground.h"
@@ -12,14 +13,18 @@ int main(void)
 
 	Game::engine.init(1280, 720, 60);
 
+	TTF_Font *font = TTF_OpenFont("joystixmonospace.ttf", 16);
+
+	Game::engine.setFont(font);
+
 	Ground *ground    = new Ground(Game::engine.world);
 
-	Tank   *player1   = new Tank   (Game::engine.world);
-	Tank   *player2   = new Tank   (Game::engine.world);
+	Tank   *player1   = new Tank   (controller, Game::engine.world);
+	Tank   *player2   = new Tank   (controller, Game::engine.world);
 
-	player1->name = "Player 1";
+	player1->name = "Player 1 RED ";
 	player1->slot = 0;
-	player2->name = "Player 2";
+	player2->name = "Player 2 BLUE";
 	player2->slot = 1;
 
 	Logger *logger    = new Logger (controller);
