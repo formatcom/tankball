@@ -1,5 +1,11 @@
 # TANKBALL
 
+### GAME DEPS COMPILER
+  - Box2D
+  - SDL2
+  - SDL2_gfx
+  - SDL2_ttf
+
 ~~~
 $ source ./gamecontrollerdb.sh
 ~~~

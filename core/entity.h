@@ -11,10 +11,18 @@ class Entity
 public:
 	Entity(b2World * world);
 	virtual ~Entity();
-	virtual void render(SDL_Renderer *renderer) = 0;
 
-	virtual b2Vec2  getPosition() { return this->body->GetPosition(); };
-	virtual float32 GetAngle()    { return this->body->GetAngle();    };
+	// deberia pasar delta time
+	virtual void update() {};
+	virtual void render(SDL_Renderer *renderer) {};
+
+	virtual b2Vec2   getPosition() { return this->body->GetPosition(); };
+	virtual float32  getAngle()    { return this->body->GetAngle();    };
+	virtual bool     isAwake()     { return this->body->IsAwake();     };
+
+	// logger
+	const char *name;
+	int8_t slot;
 
 protected:
 	b2World       * world;

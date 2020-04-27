@@ -1,7 +1,11 @@
 #include <time.h>
 #include <stdlib.h>
-#include <SDL2/SDL.h>
+
 #include <Box2D/Box2D.h>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
+
 #include "hack_SDL.h"
 #include "game.h"
 
@@ -9,18 +13,23 @@ Game Game::engine;
 
 int Game::initSDL()
 {
-	this->window   = NULL;
-	this->renderer = NULL;
+	this->window   = nullptr;
+	this->renderer = nullptr;
 
 	if (SDL_Init( SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER ) != 0)
 	{
 		return 1;
 	}
 
+	if (TTF_Init() == -1)
+	{
+		return 2;
+	}
+
 	if (SDL_CreateWindowAndRenderer(this->width, this->height,
 				SDL_WINDOW_SHOWN, &this->window, &this->renderer))
 	{
-		return 2;
+		return 3;
 	}
 
 	return 0;
@@ -42,6 +51,7 @@ int Game::init(uint16_t width, uint16_t height, uint8_t framerate)
 
 	this->framerate = framerate;
 
+	// fix this
 	this->initSDL();
 
 	this->initBox2D();
@@ -61,6 +71,124 @@ void Game::render()
 	}
 
 	SDL_RenderPresent(this->renderer);
+}
+
+void Game::update()
+{
+	for (Entity* obj : this->objects)
+	{
+		obj->update();
+	}
+
+}
+
+int8_t Game::slotController()
+{
+	for (int8_t slot = 0; slot < MAX_CONTROLLERS; ++slot)
+	{
+		if (this->controller[slot] == nullptr) return slot;
+	}
+
+	return -1;
+}
+
+int8_t Game::slotController(SDL_JoystickID id)
+{
+	SDL_GameController *joy = SDL_GameControllerFromInstanceID(id);
+
+	for (int8_t slot = 0; slot < MAX_CONTROLLERS; ++slot)
+	{
+		if (joy == this->controller[slot])
+		{
+			return slot;
+		}
+	}
+
+	return -1;
+}
+
+void Game::addController(int deviceIndex, int8_t slot, SDL_GameController *joy)
+{
+	char *guid = new char[64];
+
+	SDL_JoystickGetGUIDString(
+			SDL_JoystickGetDeviceGUID(deviceIndex),
+			guid, 64);
+
+	SDL_Log("  Opened Joystick %d\n",
+			SDL_GameControllerGetJoystick(joy)->ref_count);
+	SDL_Log("  Name:              %s\n", SDL_JoystickNameForIndex(deviceIndex));
+	SDL_Log("  GUID               %s\n", guid);
+	SDL_Log("  Number of Axes:    %d\n", SDL_JoystickNumAxes(
+				SDL_GameControllerGetJoystick(joy)));
+	SDL_Log("  Number of Buttons: %d\n", SDL_JoystickNumButtons(
+				SDL_GameControllerGetJoystick(joy)));
+	SDL_Log("  Number of Balls:   %d\n", SDL_JoystickNumBalls(
+				SDL_GameControllerGetJoystick(joy)));
+
+	this->controller[slot] = joy;
+
+}
+
+void Game::removeController(int8_t slot)
+{
+	char *guid = new char[64];
+
+	SDL_JoystickGetGUIDString(
+			SDL_JoystickGetGUID(SDL_GameControllerGetJoystick(
+					this->controller[slot])),
+			guid, 64);
+
+	SDL_Log("  Name:              %s\n", SDL_GameControllerName(this->controller[slot]));
+	SDL_Log("  GUID               %s\n", guid);
+
+	this->controller[slot] = nullptr;
+}
+
+void Game::updateButton(int8_t slot, uint8_t button, bool down)
+{
+	// fix this
+	if (down)
+	{
+		if (button == SDL_CONTROLLER_BUTTON_A)
+		{
+			this->buttons[slot] |= BUTTON_A;
+
+		}else
+
+		if (button == SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+		{
+			this->buttons[slot] |= BUTTON_LEFT;
+
+		}else
+
+		if (button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+		{
+			this->buttons[slot] |= BUTTON_RIGHT;
+		}
+
+	}
+	else
+	{
+		if (button == SDL_CONTROLLER_BUTTON_A)
+		{
+			this->buttons[slot] &= ~BUTTON_A     & 0xFF;
+
+		}else
+
+		if (button == SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+		{
+			this->buttons[slot] &= ~BUTTON_LEFT  & 0xFF;
+
+		}else
+
+		if (button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+		{
+			this->buttons[slot] &= ~BUTTON_RIGHT & 0xFF;
+		}
+
+	}
+
 }
 
 void Game::loop()
@@ -86,56 +214,34 @@ void Game::loop()
 
 			if (event.type == SDL_JOYDEVICEADDED)
 			{
+				int8_t slot = this->slotController();
+				SDL_Log("JOY %d DEVICE ADD\n", slot);
 
-				SDL_Log("INDEX %d\n", event.jdevice.which);
-
-				if (this->indexController < MAX_CONTROLLERS)
+				if (slot != -1)
 				{
-					SDL_Log("JOY %d DEVICE ADD\n", this->indexController);
-
 					if (!SDL_IsGameController(event.jdevice.which))
 					{
 						SDL_Log("  Joystick is not supported by the game controller interface!\n\n");
 					}
 					else
 					{
-						this->controller[this->indexController] = SDL_GameControllerOpen(event.jdevice.which);
+						SDL_GameController *joy = SDL_GameControllerOpen(event.jdevice.which);
 
-						if (this->controller[this->indexController])
-						{
-							char *guid = new char[64];
-
-							SDL_JoystickGetGUIDString(
-									SDL_JoystickGetDeviceGUID(event.jdevice.which),
-									guid, 64);
-
-							SDL_Log("  Opened Joystick %d\n",
-									SDL_GameControllerGetJoystick(this->controller[this->indexController])->ref_count);
-							SDL_Log("  Name:              %s\n", SDL_JoystickNameForIndex(event.jdevice.which));
-							SDL_Log("  GUID               %s\n", guid);
-							SDL_Log("  Number of Axes:    %d\n", SDL_JoystickNumAxes(
-										SDL_GameControllerGetJoystick(this->controller[this->indexController])));
-							SDL_Log("  Number of Buttons: %d\n", SDL_JoystickNumButtons(
-										SDL_GameControllerGetJoystick(this->controller[this->indexController])));
-							SDL_Log("  Number of Balls:   %d\n", SDL_JoystickNumBalls(
-										SDL_GameControllerGetJoystick(this->controller[this->indexController])));
-
-							this->indexController++;
-						}
+						if (joy) this->addController(event.jdevice.which, slot, joy);
 					}
 				}
 			}
 
 			if (event.type == SDL_JOYDEVICEREMOVED)
 			{
-				SDL_Log("JOY DEVICE REMOVED\n");
+				int8_t slot = this->slotController(event.jdevice.which);
+				SDL_Log("JOY %d DEVICE REMOVED\n", slot);
 
-				SDL_GameController *controller = SDL_GameControllerFromInstanceID(event.jdevice.which);
+				this->removeController(slot);
 
-				SDL_Log("  Name:              %s\n", SDL_GameControllerName(controller));
-				SDL_GameControllerClose(controller);
+				SDL_GameController *joy = SDL_GameControllerFromInstanceID(event.jdevice.which);
+				SDL_GameControllerClose(joy);
 
-				this->indexController--;
 			}
 
 			if (event.type == SDL_CONTROLLERAXISMOTION)
@@ -146,15 +252,19 @@ void Game::loop()
 			if (event.type == SDL_CONTROLLERBUTTONDOWN)
 			{
 				SDL_Log("CONTROLLER BUTTON DOWN EVENT\n");
+				this->updateButton(event.cbutton.which, event.cbutton.button, true);
 			}
 
 			if (event.type == SDL_CONTROLLERBUTTONUP)
 			{
 				SDL_Log("CONTROLLER BUTTON UP EVENT\n");
+				this->updateButton(event.cbutton.which, event.cbutton.button, false);
 			}
 
 
 		}
+
+		this->update();
 
 		for (int i = 0; i < 6; ++i)
 		{
@@ -182,12 +292,13 @@ void Game::destroy(uint8_t withEntity)
 		for (Entity* obj : this->objects)
 		{
 			free(obj);
-			obj = NULL;
+			obj = nullptr;
 		}
 	}
 
 	free(this->world);
     SDL_DestroyRenderer(this->renderer);
 	SDL_DestroyWindow(this->window);
+	TTF_Quit();
     SDL_Quit();
 }
