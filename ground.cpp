@@ -15,6 +15,8 @@ Ground::Ground(b2World * world) : Entity(world)
 
 	this->body = this->world->CreateBody(this->def);
 
+	this->body->SetUserData(this);
+
 	b2EdgeShape * shape = new b2EdgeShape;
 
 	this->fixture->shape       = shape;

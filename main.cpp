@@ -4,6 +4,7 @@
 #include "ground.h"
 #include "tank.h"
 #include "logger.h"
+#include "bullet.h"
 
 
 int main(void)
@@ -19,8 +20,10 @@ int main(void)
 
 	Ground *ground    = new Ground(Game::engine.world);
 
-	Tank   *player1   = new Tank   (controller, Game::engine.world);
-	Tank   *player2   = new Tank   (controller, Game::engine.world);
+	Bullet *bullet = new Bullet(Game::engine.world);
+
+	Tank   *player1   = new Tank   (controller, bullet, Game::engine.world);
+	Tank   *player2   = new Tank   (controller, bullet, Game::engine.world);
 
 	player1->name = "Player 1 RED ";
 	player1->slot = 0;
@@ -32,18 +35,21 @@ int main(void)
 	player1->setColor(0xFF0000FF);
 	player2->setColor(0x0000FFFF);
 
-
 	Game::engine.objects.push_back(ground);
 	Game::engine.objects.push_back(player1);
 	Game::engine.objects.push_back(player2);
 	Game::engine.objects.push_back(logger);
 	Game::engine.objects.push_back(controller);
 
-	controller->objects = Game::engine.objects;
-
 	logger->objects.push_back(player1);
 	logger->objects.push_back(player2);
 
+	for (uint8_t i = 0; i < bullet->len; ++i)
+	{
+		Game::engine.objects.push_back(bullet->entity[i]);
+	}
+
+	controller->objects = Game::engine.objects;
 
 	Game::engine.loop();
 

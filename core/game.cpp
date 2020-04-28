@@ -7,6 +7,7 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "hack_SDL.h"
+#include "contact.h"
 #include "game.h"
 
 Game Game::engine;
@@ -37,7 +38,12 @@ int Game::initSDL()
 
 void Game::initBox2D()
 {
+
+	ContactListener *listener = new ContactListener();
+
 	this->world = new b2World(b2Vec2(0.0, GRAVITY));
+
+	this->world->SetContactListener(listener);
 }
 
 int Game::init(uint16_t width, uint16_t height, uint8_t framerate)
@@ -252,13 +258,19 @@ void Game::loop()
 			if (event.type == SDL_CONTROLLERBUTTONDOWN)
 			{
 				SDL_Log("CONTROLLER BUTTON DOWN EVENT\n");
-				this->updateButton(event.cbutton.which, event.cbutton.button, true);
+
+				int8_t slot = this->slotController(event.jdevice.which);
+
+				this->updateButton(slot, event.cbutton.button, true);
 			}
 
 			if (event.type == SDL_CONTROLLERBUTTONUP)
 			{
 				SDL_Log("CONTROLLER BUTTON UP EVENT\n");
-				this->updateButton(event.cbutton.which, event.cbutton.button, false);
+
+				int8_t slot = this->slotController(event.jdevice.which);
+
+				this->updateButton(slot, event.cbutton.button, false);
 			}
 
 

@@ -7,6 +7,7 @@ Entity::Entity(b2World * world) : world(world)
 {
 	this->def     = new b2BodyDef;
 	this->fixture = new b2FixtureDef;
+	this->active  = true;
 }
 
 Entity::~Entity()

@@ -1,5 +1,5 @@
-#ifndef _COLOR_H_
-#define _COLOR_H_
+#ifndef _CORE_COLOR_H_
+#define _CORE_COLOR_H_
 
 typedef union
 {

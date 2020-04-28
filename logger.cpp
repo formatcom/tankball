@@ -65,17 +65,31 @@ void Logger::render(SDL_Renderer *renderer)
 	this->println(renderer, " ");
 
 	uint8_t i = 0;
-	char turn;
+	char turn[100];
 	for (Entity* obj : this->objects)
 	{
 
-		if (i == this->controller->getPlayer()) turn = '*';
-		else turn = ' ';
+		if (i == this->controller->getPlayer())
+		{
+			if (this->controller->state & TANKBALL_STATE_SET_MOVE)
+				sprintf(turn, "* move ");
+			else if (this->controller->state & TANKBALL_STATE_SET_ANGLE)
+				sprintf(turn, "* angle");
+			else if (this->controller->state & TANKBALL_STATE_SET_POWER)
+				sprintf(turn, "* power");
+			else
+				sprintf(turn, "*");
+		}
+		else
+		{
+				sprintf(turn, " ");
+		}
 
 		b2Vec2 position = obj->getPosition();
-		sprintf(buf, "%s slot %d awake %d %09.02f %09.02f %09.02f %c",
+		sprintf(buf, "%s slot %d life %d awake %d %09.02f %09.02f %09.02f %s",
 				obj->name,
 				obj->slot,
+				obj->life,
 				obj->isAwake(),
 				position.x,
 				position.y,

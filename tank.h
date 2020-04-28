@@ -5,17 +5,20 @@
 #include <Box2D/Box2D.h>
 #include <core/entity.h>
 #include "controller.h"
+#include "bullet.h"
 
 class Tank : public Entity
 {
 public:
-	Tank(Controller *controller, b2World * world);
+	Tank(Controller *controller, Bullet *bullet, b2World * world);
 	void update();
 	void render(SDL_Renderer *renderer);
-	void setColor(uint32_t color) { this->color.rgba = color; };
+
+	void contact(Entity *entityA, Entity *entityB, bool end);
 
 protected:
 	int16_t     radius;
+	Bullet     *bullet;
 	Controller *controller;
 	uint8_t     lastButtons;
 };

@@ -43,7 +43,7 @@ void Controller::update()
 	bool sleep = true;
 	for (Entity* obj : this->objects)
 	{
-		if (obj->isAwake())
+		if (obj->isAwake() && obj->active)
 		{
 			sleep = false;
 			break;
@@ -52,7 +52,7 @@ void Controller::update()
 
 	if (sleep)
 	{
-		this->state |= TANKBALL_STATE_RUNNING|TANKBALL_STATE_SET_MOVE|TANKBALL_STATE_INFO;
+		this->state |= TANKBALL_STATE_RUNNING|TANKBALL_STATE_INFO;
 	}
 }
 

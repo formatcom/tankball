@@ -1,5 +1,5 @@
-#ifndef _HACK_SDL_H
-#define _HACK_SDL_H
+#ifndef _CORE_HACK_SDL_H
+#define _CORE_HACK_SDL_H
 
 #include <linux/input.h>
 

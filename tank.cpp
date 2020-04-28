@@ -6,9 +6,13 @@
 #include "tank.h"
 
 
-Tank::Tank(Controller *controller, b2World * world) : Entity(world)
+Tank::Tank(Controller *controller, Bullet *bullet, b2World * world) : Entity(world)
 {
 
+	this->life = 9;
+	this->type = 1; // Tank
+
+	this->bullet     = bullet;
 	this->controller = controller;
 	this->color.rgba = 0xFFFFFFFF;
 	this->radius     = 16;
@@ -22,6 +26,8 @@ Tank::Tank(Controller *controller, b2World * world) : Entity(world)
 
 	this->body = this->world->CreateBody(this->def);
 
+	this->body->SetUserData(this);
+
 	b2CircleShape * shape = new b2CircleShape;
 
 	shape->m_radius = this->radius / PTM;
@@ -33,6 +39,24 @@ Tank::Tank(Controller *controller, b2World * world) : Entity(world)
 
 }
 
+void Tank::contact(Entity *entityA, Entity *entityB, bool end){
+
+	if (entityA == this && entityB->getType() == 2 && entityB->active) // bullet
+	{
+		this->life--;
+
+		float angle = entityB->getAngle();
+
+		this->body->ApplyLinearImpulse(
+				b2Vec2(     (this->radius*cos(angle) *  75) * -1,
+					  		this->radius*sin(angle) *  95),
+							this->body->GetWorldCenter(), true);
+
+
+		entityB->active = false;
+	}
+}
+
 void Tank::update()
 {
 	uint8_t buttons = Game::engine.getButtons(this->slot);
@@ -42,8 +66,10 @@ void Tank::update()
 	{
 
 		// remove notify
-		if (buttons && this->controller->state & TANKBALL_STATE_INFO)
+		if (buttons && this->controller->state & TANKBALL_STATE_INFO &&
+				      ~this->controller->state & TANKBALL_STATE_RECV )
 		{
+			this->controller->state |= TANKBALL_STATE_SET_MOVE;
 			this->controller->state |= TANKBALL_STATE_RECV;
 		}
 
@@ -51,18 +77,54 @@ void Tank::update()
 		{
 			if (buttons & BUTTON_RIGHT)
 			{
-				this->body->ApplyLinearImpulse(b2Vec2( 15, 0), this->body->GetWorldCenter(), true);
+				this->body->ApplyLinearImpulse(b2Vec2( 15.0, 0), this->body->GetWorldCenter(), true);
 			}
 
 			if (buttons & BUTTON_LEFT)
 			{
-				this->body->ApplyLinearImpulse(b2Vec2(-15, 0), this->body->GetWorldCenter(), true);
+				this->body->ApplyLinearImpulse(b2Vec2(-15.0, 0), this->body->GetWorldCenter(), true);
 			}
 
 			// release BUTTON_A
 			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)
 			{
+				this->controller->state &= ~TANKBALL_STATE_SET_MOVE & 0xFF;
+				this->controller->state |= TANKBALL_STATE_SET_ANGLE;
+			}
+		}else
+
+		if (this->controller->state & TANKBALL_STATE_SET_ANGLE)
+		{
+
+			b2Vec2 position = this->body->GetPosition();
+			float angle = this->body->GetAngle();
+
+			if (buttons & BUTTON_RIGHT)
+			{
+				this->body->SetTransform(position, angle+=0.1);
+			}
+
+			if (buttons & BUTTON_LEFT)
+			{
+				this->body->SetTransform(position, angle-=0.1);
+			}
+
+			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)
+			{
+
+				this->bullet->shot(
+						b2Vec2(
+						   	position.x + ((this->radius*2)*cos(angle)),
+					  		position.y + ((this->radius*2)*sin(angle)) - this->radius),
+							angle, 75);
+
+
+				// Este deberia cambiar a power de momento esta hardcode
+				/*
+				this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFF;
+				this->controller->state |= TANKBALL_STATE_SET_MOVE;
 				this->controller->next();
+				*/
 			}
 		}
 	}

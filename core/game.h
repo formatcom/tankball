@@ -1,5 +1,5 @@
-#ifndef _GAME_H
-#define _GAME_H
+#ifndef _CORE_GAME_H
+#define _CORE_GAME_H
 
 #include <vector>
 #include <SDL2/SDL.h>
