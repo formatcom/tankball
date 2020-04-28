@@ -18,7 +18,7 @@ int main(void)
 
 	Game::engine.setFont(font);
 
-	Ground *ground    = new Ground(Game::engine.world);
+	Ground *ground    = new Ground(controller, Game::engine.world);
 
 	Bullet *bullet = new Bullet(Game::engine.world);
 

@@ -25,7 +25,7 @@ public:
 
 	virtual void     setColor(uint32_t color) { this->color.rgba = color; };
 
-	virtual void     contact(Entity *entityA, Entity *entityB, bool end) {};
+	virtual void     contact(Entity *entityA, Entity *entityB) {};
 
 	// logger
 	const char *name;

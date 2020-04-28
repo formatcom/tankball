@@ -6,12 +6,20 @@
 #include "ground.h"
 
 
-Ground::Ground(b2World * world) : Entity(world)
+Ground::Ground(Controller *controller, b2World * world) : Entity(world)
 {
+
+	this->controller = controller;
 
 	this->color.rgba = 0xFFFFFFFF;
 
 	this->def->position.Set(0, Game::engine.getHeight()-50);
+
+	this->generate();
+}
+
+void Ground::generate()
+{
 
 	this->body = this->world->CreateBody(this->def);
 
@@ -22,7 +30,6 @@ Ground::Ground(b2World * world) : Entity(world)
 	this->fixture->shape       = shape;
 	this->fixture->restitution = 0.40;
 	this->fixture->friction    = 0.25;
-
 
 	// Genera el suelo
 	b2Vec2 vertex1 = b2Vec2(0.0, 0.0);
@@ -41,6 +48,15 @@ Ground::Ground(b2World * world) : Entity(world)
 	}
 
 	delete shape;
+}
+
+void Ground::update()
+{
+	if (this->controller->state & TANKBALL_STATE_RESTART)
+	{
+		this->world->DestroyBody(this->body);
+		this->generate();
+	}
 }
 
 void Ground::render(SDL_Renderer *renderer)

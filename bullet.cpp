@@ -50,6 +50,11 @@ _Bullet::_Bullet(b2World * world) : Entity(world)
 
 void _Bullet::update()
 {
+	if (!this->body->IsAwake())
+	{
+		this->active = false;
+	}
+
 	if (!this->active)
 	{
 		this->body->SetTransform(b2Vec2(-1000, 0), 0);

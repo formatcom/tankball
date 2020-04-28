@@ -12,6 +12,7 @@
 #define TANKBALL_STATE_SET_POWER   (1<<5)
 #define TANKBALL_STATE_INFO        (1<<6)
 #define TANKBALL_STATE_RECV        (1<<7)
+#define TANKBALL_STATE_RESTART     (1<<8)
 
 
 class Controller : public Entity
@@ -25,10 +26,14 @@ public:
 
 	bool    isAwake()     { return false; };
 
-	uint8_t state;
+	uint16_t state;
 	std::vector<Entity*> objects;
 
 	void notify(SDL_Renderer *renderer, const char *text);
+
+private:
+	uint8_t step; // frame
+	uint8_t time; // seg
 };
 
 #endif

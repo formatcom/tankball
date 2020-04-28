@@ -39,26 +39,49 @@ Tank::Tank(Controller *controller, Bullet *bullet, b2World * world) : Entity(wor
 
 }
 
-void Tank::contact(Entity *entityA, Entity *entityB, bool end){
+void Tank::contact(Entity *entityA, Entity *entityB){
 
 	if (entityA == this && entityB->getType() == 2 && entityB->active) // bullet
 	{
-		this->life--;
 
-		float angle = entityB->getAngle();
+		b2Vec2 positionA = this->getPosition();
+		b2Vec2 positionB = entityB->getPosition();
 
-		this->body->ApplyLinearImpulse(
-				b2Vec2(     (this->radius*cos(angle) *  75) * -1,
-					  		this->radius*sin(angle) *  95),
-							this->body->GetWorldCenter(), true);
+		float dx = positionA.x - positionB.x;
+		float dy = positionA.y - positionB.y;
 
+		float distance = sqrt(dx * dx + dy * dy);
 
-		entityB->active = false;
+		// circle collision detection
+		if (distance < this->radius + 10) // 10 bullet radius
+		{
+			this->life--;
+
+			float angle = entityB->getAngle();
+
+			// x 35 y 65 power
+			this->body->ApplyLinearImpulse(
+					b2Vec2(     (this->radius*cos(angle) *  35) * -1,
+								this->radius*sin(angle) *  65),
+								this->body->GetWorldCenter(), true);
+
+			entityB->active = false;
+		}
 	}
 }
 
 void Tank::update()
 {
+
+	if (this->controller->state & TANKBALL_STATE_RESTART)
+	{
+		this->life = 9;
+		this->body->SetTransform(
+				b2Vec2(
+					rand() % ( Game::engine.getWidth() - this->radius ) + this->radius,
+					100), this->getAngle());
+	}
+
 	uint8_t buttons = Game::engine.getButtons(this->slot);
 
 	uint8_t turn = this->controller->getPlayer();
@@ -69,8 +92,11 @@ void Tank::update()
 		if (buttons && this->controller->state & TANKBALL_STATE_INFO &&
 				      ~this->controller->state & TANKBALL_STATE_RECV )
 		{
-			this->controller->state |= TANKBALL_STATE_SET_MOVE;
-			this->controller->state |= TANKBALL_STATE_RECV;
+			if (!(buttons & BUTTON_A))
+			{
+				this->controller->state |= TANKBALL_STATE_SET_MOVE;
+				this->controller->state |= TANKBALL_STATE_RECV;
+			}
 		}
 
 		if (this->controller->state & TANKBALL_STATE_SET_MOVE)

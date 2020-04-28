@@ -14,13 +14,14 @@ public:
 	void update();
 	void render(SDL_Renderer *renderer);
 
-	void contact(Entity *entityA, Entity *entityB, bool end);
+	void contact(Entity *entityA, Entity *entityB);
 
 protected:
 	int16_t     radius;
 	Bullet     *bullet;
 	Controller *controller;
-	uint8_t     lastButtons;
+
+	uint8_t lastButtons;
 };
 
 #endif

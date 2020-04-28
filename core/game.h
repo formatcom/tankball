@@ -39,9 +39,12 @@ public:
 	void setFont( TTF_Font * f) { this->font = f; };
 	TTF_Font * getFont() { return this->font; };
 
-	uint8_t   getState()    { return this->state;   };
-	uint16_t  getWidth()    { return this->width;   };
-	uint16_t  getHeight()   { return this->height;  };
+	uint8_t   getFrameRate() { return this->framerate; };
+	uint8_t   getState()     { return this->state;     };
+	uint16_t  getWidth()     { return this->width;     };
+	uint16_t  getHeight()    { return this->height;    };
+
+	void      setState(uint8_t state)     { this->state = state; };
 
 	uint8_t   getButtons(int8_t slot)               { return this->buttons[slot]; };
 	SDL_GameController * getController(int8_t slot) { return this->controller[slot]; };

@@ -7,7 +7,7 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "hack_SDL.h"
-#include "contact.h"
+//#include "contact.h"
 #include "game.h"
 
 Game Game::engine;
@@ -39,11 +39,12 @@ int Game::initSDL()
 void Game::initBox2D()
 {
 
-	ContactListener *listener = new ContactListener();
+	// no funciona como quiero, luego estudiar bien
+	// ContactListener *listener = new ContactListener();
 
 	this->world = new b2World(b2Vec2(0.0, GRAVITY));
 
-	this->world->SetContactListener(listener);
+	// this->world->SetContactListener(listener);
 }
 
 int Game::init(uint16_t width, uint16_t height, uint8_t framerate)
@@ -282,6 +283,18 @@ void Game::loop()
 		{
 			this->world->Step((1.0/this->framerate), 6, 2);
 			this->world->ClearForces();
+
+			for (Entity* entityA : this->objects)
+			{
+
+				if (!entityA->getType()) continue;
+
+				for (Entity* entityB : this->objects)
+				{
+					entityA->contact(entityA, entityB);
+				}
+
+			}
 		}
 
 		this->render();
