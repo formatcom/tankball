@@ -59,7 +59,7 @@ void Controller::update()
 		}
 
 		// RESTART GAME
-		if (this->time >= 15) // 15 seg
+		if (this->time >= 10) // 10 seg
 		{
 			this->state = TANKBALL_STATE_RESTART;
 

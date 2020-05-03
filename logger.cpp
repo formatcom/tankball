@@ -71,14 +71,12 @@ void Logger::render(SDL_Renderer *renderer)
 
 		if (i == this->controller->getPlayer())
 		{
-			if (this->controller->state & TANKBALL_STATE_SET_MOVE)
-				sprintf(turn, "* move ");
-			else if (this->controller->state & TANKBALL_STATE_SET_ANGLE)
+			if (this->controller->state & TANKBALL_STATE_SET_ANGLE)
 				sprintf(turn, "* angle");
 			else if (this->controller->state & TANKBALL_STATE_SET_POWER)
 				sprintf(turn, "* power");
 			else
-				sprintf(turn, "*");
+				sprintf(turn, "* move ");
 		}
 		else
 		{
@@ -86,14 +84,15 @@ void Logger::render(SDL_Renderer *renderer)
 		}
 
 		b2Vec2 position = obj->getPosition();
-		sprintf(buf, "%s slot %d life %d awake %d %09.02f %09.02f %09.02f %s",
+		sprintf(buf, "%s slot %d life %d awake %d %08.02f %08.02f %03d %s",
 				obj->name,
 				obj->slot,
 				obj->life,
 				obj->isAwake(),
 				position.x,
 				position.y,
-				obj->getAngle(), turn);
+				obj->power,
+				turn);
 		this->println(renderer, buf);
 		i++;
 	}

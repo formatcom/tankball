@@ -21,6 +21,8 @@ protected:
 	Bullet     *bullet;
 	Controller *controller;
 
+	uint8_t step; // frame
+
 	uint8_t lastButtons;
 };
 

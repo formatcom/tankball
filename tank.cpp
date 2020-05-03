@@ -9,8 +9,10 @@
 Tank::Tank(Controller *controller, Bullet *bullet, b2World * world) : Entity(world)
 {
 
-	this->life = 9;
-	this->type = 1; // Tank
+	this->power = 0;
+	this->step  = 0;
+	this->life  = 9;
+	this->type  = 1; // Tank
 
 	this->bullet     = bullet;
 	this->controller = controller;
@@ -75,7 +77,10 @@ void Tank::update()
 
 	if (this->controller->state & TANKBALL_STATE_RESTART)
 	{
-		this->life = 9;
+		this->power = 0;
+		this->step  = 0;
+		this->life  = 9;
+
 		this->body->SetTransform(
 				b2Vec2(
 					rand() % ( Game::engine.getWidth() - this->radius ) + this->radius,
@@ -88,6 +93,9 @@ void Tank::update()
 	if (turn == this->slot && this->controller->state & TANKBALL_STATE_RUNNING)
 	{
 
+		b2Vec2 position = this->body->GetPosition();
+		float  angle    = this->body->GetAngle();
+
 		// remove notify
 		if (buttons && this->controller->state & TANKBALL_STATE_INFO &&
 				      ~this->controller->state & TANKBALL_STATE_RECV )
@@ -97,7 +105,9 @@ void Tank::update()
 				this->controller->state |= TANKBALL_STATE_SET_MOVE;
 				this->controller->state |= TANKBALL_STATE_RECV;
 			}
+
 		}
+
 
 		if (this->controller->state & TANKBALL_STATE_SET_MOVE)
 		{
@@ -114,16 +124,18 @@ void Tank::update()
 			// release BUTTON_A
 			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)
 			{
+
+				this->body->SetAngularVelocity(0);
+				this->body->SetLinearVelocity(b2Vec2(0, 0));
+
 				this->controller->state &= ~TANKBALL_STATE_SET_MOVE & 0xFF;
 				this->controller->state |= TANKBALL_STATE_SET_ANGLE;
 			}
 		}else
 
+
 		if (this->controller->state & TANKBALL_STATE_SET_ANGLE)
 		{
-
-			b2Vec2 position = this->body->GetPosition();
-			float angle = this->body->GetAngle();
 
 			if (buttons & BUTTON_RIGHT)
 			{
@@ -138,20 +150,54 @@ void Tank::update()
 			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)
 			{
 
+				this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFF;
+				this->controller->state |= TANKBALL_STATE_SET_POWER;
+			}
+		}else
+
+		if (this->controller->state & TANKBALL_STATE_SET_POWER)
+		{
+
+			if (this->step > 0)
+			{
+				this->step++;
+
+				if (this->step > 4)
+				{
+					this->step = 1;
+					this->power++;
+
+					if (this->power > 100)
+					{
+
+						this->step  = 0;
+						this->power = 0;
+						this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFF;
+						this->controller->next();
+					}
+				}
+			}else
+
+			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A && !this->power)
+			{
+				this->step = 1;
+
+			}
+
+			if (buttons & BUTTON_A && this->power)
+			{
 				this->bullet->shot(
 						b2Vec2(
 						   	position.x + ((this->radius*2)*cos(angle)),
 					  		position.y + ((this->radius*2)*sin(angle)) - this->radius),
-							angle, 75);
+							angle, this->power);
 
-
-				// Este deberia cambiar a power de momento esta hardcode
-				/*
-				this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFF;
-				this->controller->state |= TANKBALL_STATE_SET_MOVE;
+				this->step  = 0;
+				this->power = 0;
+				this->controller->state &= ~TANKBALL_STATE_SET_POWER & 0xFF;
 				this->controller->next();
-				*/
 			}
+
 		}
 	}
 

@@ -31,6 +31,7 @@ public:
 	const char *name;
 	int8_t slot;
 	int8_t life;
+	int8_t power;
 	bool   active;
 
 protected:

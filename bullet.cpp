@@ -15,6 +15,7 @@ public:
 
 private:
 	int16_t radius;
+	uint8_t step;
 };
 
 _Bullet::_Bullet(b2World * world) : Entity(world)
@@ -50,13 +51,19 @@ _Bullet::_Bullet(b2World * world) : Entity(world)
 
 void _Bullet::update()
 {
-	if (!this->body->IsAwake())
-	{
-		this->active = false;
-	}
 
-	if (!this->active)
+	if (this->active)
 	{
+		this->step++;
+
+		if (!this->body->IsAwake() || this->step > 480) // 8 seg
+		{
+			this->active = false;
+		}
+	}
+	else
+	{
+		this->step = 0;
 		this->body->SetTransform(b2Vec2(-1000, 0), 0);
 	}
 }
