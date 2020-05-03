@@ -23,6 +23,8 @@
 #define BUTTON_LEFT  (1<<1)
 #define BUTTON_RIGHT (1<<2)
 
+#define GET_ANGLE(value) ((uint8_t)(value * 180.0/((1<<15) -1)))
+
 class Game
 {
 public:
@@ -47,6 +49,7 @@ public:
 	void      setState(uint8_t state)     { this->state = state; };
 
 	uint8_t   getButtons(int8_t slot)               { return this->buttons[slot]; };
+	uint8_t   getAngle  (int8_t slot)               { return this->angle[slot]; };
 	SDL_GameController * getController(int8_t slot) { return this->controller[slot]; };
 
 	std::vector<Entity*> objects;
@@ -73,6 +76,7 @@ private:
 	void addController    (int deviceIndex, int8_t slot, SDL_GameController *joy);
 	void removeController (int8_t slot);
 
+	void updateAngle      (int8_t slot, uint8_t angle);
 	void updateButton     (int8_t slot, uint8_t button, bool down);
 
 
@@ -91,6 +95,7 @@ private:
 
 	SDL_GameController *controller [MAX_CONTROLLERS];
 	uint8_t             buttons    [MAX_CONTROLLERS];
+	uint8_t             angle      [MAX_CONTROLLERS];
 
 
 };

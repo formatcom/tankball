@@ -9,6 +9,7 @@ SRCS= core/entity.cpp   \
       core/game.cpp     \
       controller.cpp    \
       ground.cpp        \
+      limit.cpp         \
       tank.cpp          \
       logger.cpp        \
       bullet.cpp        \

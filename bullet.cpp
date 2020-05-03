@@ -56,7 +56,7 @@ void _Bullet::update()
 	{
 		this->step++;
 
-		if (!this->body->IsAwake() || this->step > 480) // 8 seg
+		if (!this->body->IsAwake() || this->step > 290)
 		{
 			this->active = false;
 		}
@@ -119,7 +119,7 @@ void Bullet::shot(b2Vec2 position, float angle, uint8_t power)
 		position.y = 10 * sin(angle);
 
 		bullet->getBody()->ApplyLinearImpulse(
-							b2Vec2(position.x*power*1.1, position.y*power*1.1),
+							b2Vec2(position.x*power*1.6, position.y*power*1.6),
 							bullet->getBody()->GetWorldCenter(), true);
 	}
 }

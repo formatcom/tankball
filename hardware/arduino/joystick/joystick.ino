@@ -250,16 +250,14 @@ uint8_t getAngle()
 	_angle = 0.96 * (_angle+gx*delta) + 0.04*ax;
 
 	// compensar el angulo
-	float a = _angle + 42;
+	float a = _angle + 17;
 
 	if (a >  90) a =  90;
 	if (a < -90) a = -90;
 
+	// ajustar angulo
 	if (a > 0) angle = a;
 	else       angle = a + 180;
-
-	// compensar la perdida de presicion en la compress
-	angle += 17;
 
 #endif
 
@@ -288,6 +286,10 @@ void loop()
 		buttons |= STATE_BTN_LEFT;
 	}
 
+	uint8_t angle = getAngle();
+
+	buttons |= angle << 3;
+
 	if (lastButtons != buttons)
 	{
 		if (BTSerial.availableForWrite())
@@ -295,10 +297,6 @@ void loop()
 			BTSerial.write(buttons);
 		}
 	}
-
-	uint8_t angle = getAngle();
-
-	buttons |= angle << 2;
 
 	if (BTSerial.available())
 	{

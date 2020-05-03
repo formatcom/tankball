@@ -152,6 +152,11 @@ void Game::removeController(int8_t slot)
 	this->controller[slot] = nullptr;
 }
 
+void Game::updateAngle(int8_t slot, uint8_t angle)
+{
+	this->angle[slot] = angle;
+}
+
 void Game::updateButton(int8_t slot, uint8_t button, bool down)
 {
 	// fix this
@@ -254,6 +259,11 @@ void Game::loop()
 			if (event.type == SDL_CONTROLLERAXISMOTION)
 			{
 				SDL_Log("CONTROLLER AXIS EVENT\n");
+				if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+				{
+					int8_t slot = this->slotController(event.jdevice.which);
+					this->updateAngle(slot, GET_ANGLE(event.caxis.value));
+				}
 			}
 
 			if (event.type == SDL_CONTROLLERBUTTONDOWN)

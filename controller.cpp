@@ -32,9 +32,7 @@ void Controller::render(SDL_Renderer *renderer)
 {
 	if (this->state & TANKBALL_STATE_INFO && ~this->state & TANKBALL_STATE_RECV)
 	{
-		char buf[10];
-		sprintf(buf, "player %d", this->getPlayer()+1);
-		this->notify(renderer, buf);
+		this->notify(renderer, this->info);
 	}
 }
 
@@ -59,7 +57,7 @@ void Controller::update()
 		}
 
 		// RESTART GAME
-		if (this->time >= 10) // 10 seg
+		if (this->time >= 5) // 5 seg
 		{
 			this->state = TANKBALL_STATE_RESTART;
 
@@ -69,10 +67,26 @@ void Controller::update()
 
 	}
 
-
 	bool sleep = true;
 	for (Entity* obj : this->objects)
 	{
+
+		if (obj->getType() == 1 && obj->life <= 0) // type tank
+		{
+			for (uint8_t i = 0; i < 100; ++i)
+				this->info[i] = '\0';
+
+			uint8_t win;
+			if (obj->slot == 1) win = 1;
+			else win = 2;
+
+			sprintf(this->info, "win player %d", win);
+			this->state |= TANKBALL_STATE_GAMEOVER|TANKBALL_STATE_INFO;
+			sleep = false;
+			break;
+		}
+
+
 		if (obj->isAwake() && obj->active)
 		{
 			sleep = false;
@@ -82,25 +96,31 @@ void Controller::update()
 
 	if (sleep)
 	{
+		for (uint8_t i = 0; i < 100; ++i)
+			this->info[i] = '\0';
+
+		sprintf(this->info, "player %d", this->getPlayer()+1);
 		this->state |= TANKBALL_STATE_RUNNING|TANKBALL_STATE_INFO;
 	}
-
 }
 
 void Controller::next()
 {
 	if (this->state & TANKBALL_STATE_PLAYER)
 	{
-		this->state &= ~TANKBALL_STATE_PLAYER & 0xFF;
+		this->state &= ~TANKBALL_STATE_PLAYER & 0xFFFF;
 	}
 	else
 	{
 		this->state |=  TANKBALL_STATE_PLAYER;
 	}
 
-	this->state &= ~TANKBALL_STATE_RUNNING & 0xFF;
-	this->state &= ~TANKBALL_STATE_INFO    & 0xFF;
-	this->state &= ~TANKBALL_STATE_RECV    & 0xFF;
+	if (!(this->state & TANKBALL_STATE_GAMEOVER))
+	{
+		this->state &= ~TANKBALL_STATE_RUNNING & 0xFFFF;
+		this->state &= ~TANKBALL_STATE_INFO    & 0xFFFF;
+		this->state &= ~TANKBALL_STATE_RECV    & 0xFFFF;
+	}
 }
 
 uint8_t Controller::getPlayer()

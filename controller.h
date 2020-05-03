@@ -13,6 +13,7 @@
 #define TANKBALL_STATE_INFO        (1<<6)
 #define TANKBALL_STATE_RECV        (1<<7)
 #define TANKBALL_STATE_RESTART     (1<<8)
+#define TANKBALL_STATE_GAMEOVER    (1<<9)
 
 
 class Controller : public Entity
@@ -34,6 +35,8 @@ public:
 private:
 	uint8_t step; // frame
 	uint8_t time; // seg
+
+	char    info[100];
 };
 
 #endif

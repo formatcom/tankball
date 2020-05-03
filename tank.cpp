@@ -87,7 +87,8 @@ void Tank::update()
 					100), this->getAngle());
 	}
 
-	uint8_t buttons = Game::engine.getButtons(this->slot);
+	uint8_t buttons   = Game::engine.getButtons(this->slot);
+	uint8_t joyAngle  = Game::engine.getAngle(this->slot);
 
 	uint8_t turn = this->controller->getPlayer();
 	if (turn == this->slot && this->controller->state & TANKBALL_STATE_RUNNING)
@@ -145,6 +146,11 @@ void Tank::update()
 			if (buttons & BUTTON_LEFT)
 			{
 				this->body->SetTransform(position, angle-=0.1);
+			}
+
+			if (joyAngle > 0)
+			{
+				this->body->SetTransform(position,  -joyAngle * M_PI / 180.0);
 			}
 
 			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)

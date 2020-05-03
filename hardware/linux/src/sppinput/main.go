@@ -155,6 +155,12 @@ func (d *Devices) Disconnet(key string) {
 
 	log.Printf("DISCONNETED TO %s\n", key)
 
+	defer func() {
+		if r := recover(); r != nil {
+		    log.Printf("PANIC %s %s", key, r)
+		}
+	}()
+
 	unix.Shutdown(d.info[key].fd, unix.SHUT_RDWR)
 	unix.Close(d.info[key].fd)
 	delete(d.info, key)
@@ -239,12 +245,18 @@ func (d *DeviceInfo) UInput() error {
 	ioctl(fd, C.UI_SET_KEYBIT, unsafe.Pointer(uintptr(C.BTN_A)))
 
 	ioctl(fd, C.UI_SET_EVBIT,  unsafe.Pointer(uintptr(C.EV_ABS)))
+
 	ioctl(fd, C.UI_SET_ABSBIT, unsafe.Pointer(uintptr(C.ABS_HAT0X)))
-	// ioctl(fd, C.UI_SET_ABSBIT, unsafe.Pointer(uintptr(C.ABS_HAT0Y)))
+	ioctl(fd, C.UI_SET_ABSBIT, unsafe.Pointer(uintptr(C.ABS_HAT0Y)))
+
+	ioctl(fd, C.UI_SET_ABSBIT, unsafe.Pointer(uintptr(C.ABS_Z)))     // triggers left
 
 	// REF: https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L1583
 	d.AbsInit(fd, C.ABS_HAT0X, -1, 1)
-	// d.AbsInit(fd, C.ABS_HAT0Y, -1, 1)
+	d.AbsInit(fd, C.ABS_HAT0Y, -1, 1)
+
+	// REF: https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L372
+	d.AbsInit(fd, C.ABS_Z, 0, 180) // RZ for angle
 
 	usetup.Id.Bustype = C.BUS_USB
 	usetup.Id.Vendor  = 0x1234
@@ -286,9 +298,13 @@ func (d *DeviceInfo) UInput() error {
 				return err
 			}
 
+			log.Printf("%v BUTTONS %#b", d.addr, buf[0])
+
 			// REF: https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L628
 			d.Emit(fd, C.EV_ABS, C.ABS_HAT0X,
 				Bool2int(buf[0] & STATE_BTN_RIGHT > 0) - Bool2int(buf[0] & STATE_BTN_LEFT > 0))
+
+			d.Emit(fd, C.EV_ABS, C.ABS_Z, (int32)(float64(buf[0] >> 3)/0.17)) // decompress angle
 
 			d.Emit(fd, C.EV_KEY, C.BTN_A, Bool2int(buf[0] & STATE_BTN_ACTION > 0))
 

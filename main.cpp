@@ -2,6 +2,7 @@
 #include <core/game.h>
 #include "controller.h"
 #include "ground.h"
+#include "limit.h"
 #include "tank.h"
 #include "logger.h"
 #include "bullet.h"
@@ -19,8 +20,9 @@ int main(void)
 	Game::engine.setFont(font);
 
 	Ground *ground    = new Ground(controller, Game::engine.world);
+	Limit  *limit     = new Limit(Game::engine.world);
 
-	Bullet *bullet = new Bullet(Game::engine.world);
+	Bullet *bullet    = new Bullet(Game::engine.world);
 
 	Tank   *player1   = new Tank   (controller, bullet, Game::engine.world);
 	Tank   *player2   = new Tank   (controller, bullet, Game::engine.world);
@@ -36,6 +38,7 @@ int main(void)
 	player2->setColor(0x0000FFFF);
 
 	Game::engine.objects.push_back(ground);
+	Game::engine.objects.push_back(limit);
 	Game::engine.objects.push_back(player1);
 	Game::engine.objects.push_back(player2);
 	Game::engine.objects.push_back(logger);
