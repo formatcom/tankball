@@ -2,5 +2,6 @@ tankball
 hardware/linux/bin
 hardware/linux/src/golang.org
 hardware/linux/src/sppinput/sppinput
+hardware/arduino/joystick/build-*
 tools
 env
