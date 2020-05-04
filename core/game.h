@@ -97,7 +97,6 @@ private:
 	uint8_t             buttons    [MAX_CONTROLLERS];
 	uint8_t             angle      [MAX_CONTROLLERS];
 
-
 };
 
 #endif

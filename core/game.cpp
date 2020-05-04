@@ -33,6 +33,8 @@ int Game::initSDL()
 		return 3;
 	}
 
+	SDL_ShowCursor(false);
+
 	return 0;
 }
 

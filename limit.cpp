@@ -23,27 +23,27 @@ Limit::Limit(b2World * world) : Entity(world)
 	this->fixture->shape   = shape;
 	this->fixture->restitution = 0.80;
 
-	shape->Set(b2Vec2(0, 0), b2Vec2(Game::engine.getWidth(), 0));
+	shape->Set(b2Vec2(0, 0), b2Vec2(Game::engine.getWidth()-1, 0));
 
 	this->body->CreateFixture(this->fixture);
 
-	shape->Set(b2Vec2(Game::engine.getWidth(), 0),
-			   b2Vec2(Game::engine.getWidth(),
-			          Game::engine.getHeight()));
+	shape->Set(b2Vec2(Game::engine.getWidth()-1, 0),
+			   b2Vec2(Game::engine.getWidth()-1,
+			          Game::engine.getHeight()-1));
 
 	this->body->CreateFixture(this->fixture);
 
-	shape->Set(b2Vec2(Game::engine.getWidth(),
-				      Game::engine.getHeight()),
-			b2Vec2(0, Game::engine.getHeight()));
+	shape->Set(b2Vec2(Game::engine.getWidth()-1,
+				      Game::engine.getHeight()-1),
+			b2Vec2(0, Game::engine.getHeight()-1));
 
 	this->body->CreateFixture(this->fixture);
 
-	shape->Set(b2Vec2(0, 0), b2Vec2(Game::engine.getWidth(), 0));
+	shape->Set(b2Vec2(0, 0), b2Vec2(Game::engine.getWidth()-1, 0));
 
 	this->body->CreateFixture(this->fixture);
 
-	shape->Set(b2Vec2(0, Game::engine.getHeight()), b2Vec2(0, 0));
+	shape->Set(b2Vec2(0, Game::engine.getHeight()-1), b2Vec2(0, 0));
 
 	this->body->CreateFixture(this->fixture);
 }

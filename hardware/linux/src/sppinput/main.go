@@ -12,9 +12,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// #cgo LDFLAGS: -ludev -lbluetooth
+// #cgo LDFLAGS: -lbluetooth
 // #include <string.h>
-// #include <libudev.h>
 // #include <linux/uinput.h>
 // #include <bluetooth/bluetooth.h>
 // #include <bluetooth/hci.h>
@@ -195,7 +194,7 @@ func (d *Devices) Connect(key string) error {
 
 func (d *DeviceInfo) Emit(fd int, Type, code uint16, val int32) {
 
-	buf := make([]byte, unsafe.Sizeof(InputEvent))
+	buf := make([]byte, unsafe.Sizeof(InputEvent{}))
 
 	event := (*InputEvent)(unsafe.Pointer(&buf[0]))
 
@@ -323,7 +322,7 @@ func (d *DeviceInfo) UInput() error {
 		*/
 
 		if pfds[1].Revents & unix.POLLIN   != 0 {
-			buf := make([]byte, unsafe.Sizeof(InputEvent))
+			buf := make([]byte, unsafe.Sizeof(InputEvent{}))
 
 			if _, err = unix.Read(fd, buf); err != nil {
 				return err

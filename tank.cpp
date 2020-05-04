@@ -168,7 +168,7 @@ void Tank::update()
 			{
 				this->step++;
 
-				if (this->step > 4)
+				if (this->step > 2)
 				{
 					this->step = 1;
 					this->power++;
