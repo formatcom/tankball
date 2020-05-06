@@ -15,6 +15,11 @@
 #define TANKBALL_STATE_RESTART     (1<<8)
 #define TANKBALL_STATE_GAMEOVER    (1<<9)
 
+#define JOY_STATE_LED_RED    (1<<0)
+#define JOY_STATE_LED_GREEN  (1<<1)
+#define JOY_STATE_LED_BLUE   (1<<2)
+#define JOY_STATE_LED_MASK   (1<<0) | (1<<1) | (1<<2)
+
 
 class Controller : public Entity
 {
@@ -33,8 +38,11 @@ public:
 	void notify(SDL_Renderer *renderer, const char *text);
 
 private:
+	void    emit(uint8_t state);
+
 	uint8_t step; // frame
 	uint8_t time; // seg
+	uint8_t led[2];
 
 	char    info[100];
 };

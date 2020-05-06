@@ -1,16 +1,54 @@
 #include <time.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
 #include <stdlib.h>
-
+#include <dirent.h>
+#include <linux/input.h>
+#include <sys/reboot.h>
 #include <Box2D/Box2D.h>
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "hack_SDL.h"
 //#include "contact.h"
+#include "hack_SDL.h"
 #include "game.h"
 
 Game Game::engine;
+
+void Game::findEvent()
+{
+	DIR *folder;
+
+	struct dirent *dent;
+
+	folder = opendir("/dev/input");
+	if (folder)
+	{
+		while((dent = readdir(folder)))
+		{
+			if (strncmp(dent->d_name, "event", 5) == 0)
+			{
+				char device[300];
+				char name[256];
+
+				sprintf(device, "/dev/input/%s", dent->d_name);
+
+				this->fdbutton = open(device, O_RDONLY | O_NONBLOCK);
+				if (this->fdbutton < 0)
+				{
+					ioctl(this->fdbutton, EVIOCGNAME(256), name);
+					if (strncmp(name, "soc:shutdown_button", 19) != 0)
+					{
+						close(this->fdbutton); this->fdbutton = -1;
+						continue;
+					}
+					break;
+				}
+			}
+		}
+	}
+}
 
 int Game::initSDL()
 {
@@ -32,8 +70,6 @@ int Game::initSDL()
 	{
 		return 3;
 	}
-
-	SDL_ShowCursor(false);
 
 	return 0;
 }
@@ -59,6 +95,8 @@ int Game::init(uint16_t width, uint16_t height, uint8_t framerate)
 	this->height    = height;
 
 	this->framerate = framerate;
+
+	this->findEvent(); // only rpi
 
 	// fix this
 	this->initSDL();
@@ -208,9 +246,25 @@ void Game::updateButton(int8_t slot, uint8_t button, bool down)
 void Game::loop()
 {
 	SDL_Event event;
+	struct input_event ie;
 
 	while((this->state & STATE_END) == 0)
 	{
+
+		// power off only rpi
+		if (this->fdbutton > 0)
+		{
+			while(read(this->fdbutton, &ie, sizeof(struct input_event)) > 0)
+			{
+				if (ie.type == EV_KEY && ie.code == KEY_POWER)
+				{
+					sync();
+					reboot(RB_POWER_OFF);
+				}
+			}
+		}
+
+
 		while(SDL_PollEvent(&event) == 1)
 		{
 			if (event.type == SDL_QUIT)
@@ -260,7 +314,7 @@ void Game::loop()
 
 			if (event.type == SDL_CONTROLLERAXISMOTION)
 			{
-				SDL_Log("CONTROLLER AXIS EVENT\n");
+				// SDL_Log("CONTROLLER AXIS EVENT\n");
 				if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT)
 				{
 					int8_t slot = this->slotController(event.jdevice.which);
@@ -270,7 +324,7 @@ void Game::loop()
 
 			if (event.type == SDL_CONTROLLERBUTTONDOWN)
 			{
-				SDL_Log("CONTROLLER BUTTON DOWN EVENT\n");
+				// SDL_Log("CONTROLLER BUTTON DOWN EVENT\n");
 
 				int8_t slot = this->slotController(event.jdevice.which);
 
@@ -279,7 +333,7 @@ void Game::loop()
 
 			if (event.type == SDL_CONTROLLERBUTTONUP)
 			{
-				SDL_Log("CONTROLLER BUTTON UP EVENT\n");
+				// SDL_Log("CONTROLLER BUTTON UP EVENT\n");
 
 				int8_t slot = this->slotController(event.jdevice.which);
 
@@ -291,9 +345,10 @@ void Game::loop()
 
 		this->update();
 
-		for (int i = 0; i < 6; ++i)
+		for (int i = 0; i < 12; ++i)
 		{
-			this->world->Step((1.0/this->framerate), 6, 2);
+			this->world->Step((1.0/60), 6, 4);
+
 			this->world->ClearForces();
 
 			for (Entity* entityA : this->objects)
@@ -332,6 +387,8 @@ void Game::destroy(uint8_t withEntity)
 			obj = nullptr;
 		}
 	}
+
+	if (this->fdbutton > 0) close(this->fdbutton);
 
 	free(this->world);
     SDL_DestroyRenderer(this->renderer);

@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <linux/input.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
 #include <core/game.h>
 #include <core/entity.h>
+#include <core/hack_SDL.h>
 
 #include "controller.h"
 
@@ -36,8 +39,49 @@ void Controller::render(SDL_Renderer *renderer)
 	}
 }
 
+void Controller::emit(uint8_t state)
+{
+
+	struct input_event ev;
+	ev.type  = EV_MSC;
+	ev.code  = MSC_PULSELED;
+	ev.value = state;
+
+	int8_t slot = !!(this->state & TANKBALL_STATE_PLAYER);
+
+	SDL_GameController *ctrl = Game::engine.getController(slot);
+
+	if (ctrl && this->led[slot] != state)
+	{
+		SDL_Joystick *joy = SDL_GameControllerGetJoystick(ctrl);
+
+		write(joy->hwdata->fd, (const void *)&ev, sizeof(ev));
+
+		ev.type  = EV_SYN;
+		ev.code  = SYN_REPORT;
+		ev.value = 0;
+
+		write(joy->hwdata->fd, (const void *)&ev, sizeof(ev));
+		this->led[slot] = state;
+	}
+}
+
 void Controller::update()
 {
+
+	if (this->state & TANKBALL_STATE_SET_ANGLE)
+	{
+		emit(JOY_STATE_LED_RED);
+	}else
+
+	if (this->state & TANKBALL_STATE_SET_POWER)
+	{
+		emit(JOY_STATE_LED_GREEN);
+	}
+	else
+	{
+		emit(JOY_STATE_LED_BLUE);
+	}
 
 	if (this->state & TANKBALL_STATE_RESTART)
 	{
@@ -106,6 +150,7 @@ void Controller::update()
 
 void Controller::next()
 {
+	emit(0); // LED OFF
 	if (this->state & TANKBALL_STATE_PLAYER)
 	{
 		this->state &= ~TANKBALL_STATE_PLAYER & 0xFFFF;

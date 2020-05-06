@@ -119,7 +119,7 @@ void Bullet::shot(b2Vec2 position, float angle, uint8_t power)
 		position.y = 10 * sin(angle);
 
 		bullet->getBody()->ApplyLinearImpulse(
-							b2Vec2(position.x*power*1.6, position.y*power*1.6),
+							b2Vec2(position.x*power*2.0, position.y*power*2.0),
 							bullet->getBody()->GetWorldCenter(), true);
 	}
 }

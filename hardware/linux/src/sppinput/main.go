@@ -297,7 +297,7 @@ func (d *DeviceInfo) UInput() error {
 				return err
 			}
 
-			log.Printf("%v BUTTONS %#b", d.addr, buf[0])
+			// log.Printf("%v BUTTONS %#b", d.addr, buf[0])
 
 			// REF: https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L628
 			d.Emit(fd, C.EV_ABS, C.ABS_HAT0X,
@@ -334,6 +334,7 @@ func (d *DeviceInfo) UInput() error {
 
 				var v uint8 = uint8(event.Value) & STATE_LED_MASK
 
+				log.Printf("EMIT LED %X", v);
 				unix.Write(d.fd, []byte{v})
 			}
 		}

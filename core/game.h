@@ -79,6 +79,7 @@ private:
 	void updateAngle      (int8_t slot, uint8_t angle);
 	void updateButton     (int8_t slot, uint8_t button, bool down);
 
+	void findEvent();     // find soc:shutdown_button rpi
 
 	uint8_t state;
 
@@ -96,6 +97,8 @@ private:
 	SDL_GameController *controller [MAX_CONTROLLERS];
 	uint8_t             buttons    [MAX_CONTROLLERS];
 	uint8_t             angle      [MAX_CONTROLLERS];
+
+	int                 fdbutton;  // soc:shutdown_button rpi
 
 };
 

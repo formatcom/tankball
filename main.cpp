@@ -13,7 +13,7 @@ int main(void)
 
 	Controller *controller = new Controller();
 
-	Game::engine.init(1280, 720, 45);
+	Game::engine.init(1280, 720, 30);
 
 	TTF_Font *font = TTF_OpenFont("joystixmonospace.ttf", 16);
 

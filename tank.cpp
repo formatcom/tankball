@@ -129,7 +129,7 @@ void Tank::update()
 				this->body->SetAngularVelocity(0);
 				this->body->SetLinearVelocity(b2Vec2(0, 0));
 
-				this->controller->state &= ~TANKBALL_STATE_SET_MOVE & 0xFF;
+				this->controller->state &= ~TANKBALL_STATE_SET_MOVE & 0xFFFF;
 				this->controller->state |= TANKBALL_STATE_SET_ANGLE;
 			}
 		}else
@@ -156,7 +156,7 @@ void Tank::update()
 			if (!(buttons & BUTTON_A) && lastButtons & BUTTON_A)
 			{
 
-				this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFF;
+				this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFFFF;
 				this->controller->state |= TANKBALL_STATE_SET_POWER;
 			}
 		}else
@@ -178,7 +178,7 @@ void Tank::update()
 
 						this->step  = 0;
 						this->power = 0;
-						this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFF;
+						this->controller->state &= ~TANKBALL_STATE_SET_ANGLE & 0xFFFF;
 						this->controller->next();
 					}
 				}
@@ -200,7 +200,7 @@ void Tank::update()
 
 				this->step  = 0;
 				this->power = 0;
-				this->controller->state &= ~TANKBALL_STATE_SET_POWER & 0xFF;
+				this->controller->state &= ~TANKBALL_STATE_SET_POWER & 0xFFFF;
 				this->controller->next();
 			}
 
