@@ -35,7 +35,7 @@ void Game::findEvent()
 				sprintf(device, "/dev/input/%s", dent->d_name);
 
 				this->fdbutton = open(device, O_RDONLY | O_NONBLOCK);
-				if (this->fdbutton < 0)
+				if (this->fdbutton > 0)
 				{
 					ioctl(this->fdbutton, EVIOCGNAME(256), name);
 					if (strncmp(name, "soc:shutdown_button", 19) != 0)
