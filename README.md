@@ -19,6 +19,9 @@ CREDITS & COPYING:
 
    - bluez
      REF: http://www.bluez.org/download/
+
+   - Arduino-Makefile
+     REF: https://github.com/sudar/Arduino-Makefile
 ~~~
 
 ### GAME DEPS COMPILER
@@ -30,11 +33,28 @@ CREDITS & COPYING:
    - SDL2_ttf
 ~~~
 
-### DRIVER COMPILERCOMPILER
+### DRIVER COMPILER
 ~~~
    - gcc
    - golang
    - bluez-dev
+~~~
+
+### FIRMWARE GAMEPAD
+~~~
+   - Only Native Arduino
+   - Makefile
+   - Arduino-Makefile
+~~~
+
+### HARDWARE
+~~~
+   - ARDUINO       / one | leonardo | ...
+   - HC-05         / Bluetooth
+   - HC-SR04       / Ultra sonic
+   - MPU6050       / IMU (Inertial Measurment Units)
+   - LED RGB
+   - PUSH BUTTONS
 ~~~
   
 ~~~
