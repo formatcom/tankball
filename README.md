@@ -33,14 +33,14 @@ CREDITS & COPYING:
    - SDL2_ttf
 ~~~
 
-### DRIVER COMPILER
+### [DRIVER COMPILER](/hardware/linux/src/sppinput/)
 ~~~
    - gcc
    - golang
    - bluez-dev
 ~~~
 
-### FIRMWARE GAMEPAD
+### [FIRMWARE GAMEPAD](/hardware/arduino/joystick/)
 ~~~
    - Only Native Arduino
    - Makefile
