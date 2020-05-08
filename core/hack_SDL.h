@@ -4,8 +4,8 @@
 #include <linux/input.h>
 
 
-// REF: ttps://github.com/emscripten-ports/SDL2/blob/master/src/joystick/linux/SDL_sysjoystick_c.h
-// REF: https://github.com/emscripten-ports/SDL2/blob/master/src/joystick/SDL_sysjoystick.h
+// REF: SDL2-2.0.12/src/joystick/linux/SDL_sysjoystick_c.h
+// REF: SDL2-2.0.12/src/joystick/SDL_sysjoystick.h
 struct joystick_hwdata
 {
     int fd;
@@ -48,20 +48,22 @@ struct joystick_hwdata
     SDL_bool gone;
 };
 
+/* The SDL joystick structure */
 typedef struct _SDL_JoystickAxisInfo
 {
     Sint16 initial_value;       /* Initial axis state */
     Sint16 value;               /* Current axis state */
     Sint16 zero;                /* Zero point on the axis (-32768 for triggers) */
     SDL_bool has_initial_value; /* Whether we've seen a value on the axis yet */
+    SDL_bool has_second_value;  /* Whether we've seen a second value on the axis yet */
     SDL_bool sent_initial_value; /* Whether we've sent the initial axis value */
 } SDL_JoystickAxisInfo;
+
 
 struct _SDL_Joystick
 {
     SDL_JoystickID instance_id; /* Device instance, monotonically increasing from 0 */
     char *name;                 /* Joystick name - system dependent */
-    int player_index;           /* Joystick player index, or -1 if unavailable */
     SDL_JoystickGUID guid;      /* Joystick guid */
 
     int naxes;                  /* Number of axis controls on the joystick */
@@ -78,6 +80,10 @@ struct _SDL_Joystick
 
     int nbuttons;               /* Number of buttons on the joystick */
     Uint8 *buttons;             /* Current button states */
+
+    Uint16 low_frequency_rumble;
+    Uint16 high_frequency_rumble;
+    Uint32 rumble_expiration;
 
     SDL_bool attached;
     SDL_bool is_game_controller;

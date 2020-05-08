@@ -297,6 +297,8 @@ func (d *DeviceInfo) UInput() error {
 				return err
 			}
 
+			log.Printf("EMIT BUTTONS %X", buf[0]);
+
 			// log.Printf("%v BUTTONS %#b", d.addr, buf[0])
 
 			// REF: https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c#L628

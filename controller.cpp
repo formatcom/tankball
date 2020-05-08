@@ -88,7 +88,7 @@ void Controller::update()
 		this->state = TANKBALL_STATE_INIT;
 	}
 
-	uint8_t buttons = Game::engine.getButtons(this->slot);
+	uint8_t buttons = Game::engine.getButtons(0);
 
 	if (buttons & BUTTON_A)
 	{

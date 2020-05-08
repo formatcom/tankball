@@ -8,7 +8,7 @@ CREDITS & COPYING:
    - Box2D
      REF: https://github.com/erincatto/box2d/blob/master/LICENSE
 
-   - SDL2
+   - SDL2 ver 2.0.12 [mod](/core/hack_SDL.h)
      REF: https://www.libsdl.org/license.php
 
    - SDL2_gfx
